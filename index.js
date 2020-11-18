@@ -1,6 +1,7 @@
 const redux = require('redux');
 
 const createStore = redux.createStore;
+const combineReducers = redux.combineReducers;
 
 const INIT_STATE = {
     count: 0,
@@ -46,7 +47,44 @@ function counterReducer(state = INIT_STATE, action) {
     }
 }
 
-const store = createStore(counterReducer);
+/// --------
+const INIT_STATE_CUSTOM = {
+    custom_counter: 0
+};
+
+// increment by custom amount
+const INCREMENT_BY_CUSTOM_AMOUNT = 'INCREMENT_BY_CUSTOM_AMOUNT';
+
+
+//action creator
+function incrementByCustomAmountActionCreator(number) {
+    return {
+        type: INCREMENT_BY_CUSTOM_AMOUNT,
+        payload: number
+    }
+}
+
+function customIncrementReducer(state = INIT_STATE_CUSTOM, action) {
+    switch (action.type) {
+        case INCREMENT_BY_CUSTOM_AMOUNT: {
+            return {
+                ...state,
+                custom_counter: state.custom_counter + action.payload
+            }
+        }
+        default:{
+            return state;
+        }
+    }
+}
+
+
+const rootReducer = combineReducers({
+    simpleCounter: counterReducer,
+    customCounter: customIncrementReducer
+});
+
+const store = createStore(rootReducer);
 
 
 console.log("initial state", store.getState());
@@ -63,18 +101,15 @@ const onChangeCallback = () => {
 };
 
 
-store.subscribe(onChangeCallback);
+const unsubscribe = store.subscribe(onChangeCallback);
 
 // document.getElementById("myButton").addEventListner(() => {store.dispatch(increaseCountActionCreator())})
 
 
-store.dispatch(decrementCountActionCreator());
+
 store.dispatch(increaseCountActionCreator());
-store.dispatch(increaseCountActionCreator());
-store.dispatch(increaseCountActionCreator());
-store.dispatch(increaseCountActionCreator());
-store.dispatch(decrementCountActionCreator());
-store.dispatch(increaseCountActionCreator());
-store.dispatch(decrementCountActionCreator());
 store.dispatch(decrementCountActionCreator());
 
+// dispatch action for second reducer
+store.dispatch(incrementByCustomAmountActionCreator(10));
+unsubscribe();
